@@ -127,22 +127,156 @@ class BinaryTree {
       }
       return node;
    }
+
+   sort(options) 
+   {
+      if (options === 'inorder') 
+      {
+         return this.inorder();
+      } 
+      if (options === 'postorder')
+      {
+         return this.postorder();
+      }
+      if (options === 'preorder')
+      {
+         return this.preorder();
+      }
+   }
+
+   inorder()
+   {
+      let current = this.root;
+      const stack =[];
+      const nodes = []
+      while (stack.length || current)
+      {
+         if (current) 
+         {
+            stack.push(current);
+            current = current.left
+         }
+         else 
+         {
+            current = stack.pop();
+            nodes.push(current.data)
+            current = current.right;
+         }
+      }
+      return nodes;
+   }
+
+   postorder()
+   {
+      let current = this.root;
+      const nodes = [];
+      const stack = [];
+      let last = null;
+
+      while (stack.length || current)
+      {
+         if (current) 
+         {
+            stack.push(current);
+            current = current.left;
+         }
+         else
+         {
+            let peek = stack[stack.length-1];
+            if (peek.right && last !== peek.right)
+            {
+               current = peek.right;
+            }
+            else
+            {
+               last = stack.pop();
+               nodes.push(last.data);
+            }
+         }
+      }
+      return nodes
+   }
+
+   preorder() {
+      let current = this.root;
+      const stack = [];
+      const nodes = [];
+      stack.push(current);
+      debugger;
+      while (stack.length || current !== undefined)
+      {
+         current = stack.pop();
+         if (current) 
+         {
+            nodes.push(current.data); 
+         
+            if (current.right)
+            {
+               stack.push(current.right);
+            }
+            if (current.left)
+            {
+               stack.push(current.left);
+            }
+         }
+      }
+      return nodes;
+   }
 }
 
-let test = [1, 3, 20, 4, 12, 9, 13, 60, 7]
+
+let test = [5, 3, 20, 4, 12, 9, 13, 60, 7]
 const tree = new BinaryTree();
 for (index of test) {
    console.log(index);
    tree.insert(index);
 }
 
+const printTree = function(root) {
+   //first find depth of tree
+       let depth = 0
+       const findDepth = (node, level) => {
+           depth = Math.max(depth, level);
+           if (node.left) {
+               findDepth(node.left, level + 1)
+           }
+           if (node.right) {
+               findDepth(node.right, level + 1)
+           }
+       }
+       findDepth(root, 1);
+       let width = 1 + ((depth - 1) * 2)
+   //create array of arrays filled with blanks that match height and width
+   // of given tree
+      let output = Array.from({ length: depth }, _ => Array.from({ length: width }).fill(''));
+      let mid = Math.floor(width / 2);
+   //do DFS through tree and change output array based on position in tree
+       const populate = (node, level, hori) => {
+           output[level][hori] = node.data;
+           if (node.left) {
+               populate(node.left, level + 1, hori - 1);
+           }
+           if (node.right) {
+               populate(node.right, level + 1, hori + 1);
+           }
+       }
+       populate(root, 0, mid);
+       return output;
+   };
+
+console.log(printTree(tree.root));
+
+   
 
 
 console.log(tree);
 console.log(tree.find(3));
-tree.remove(50);
-tree.remove(20);
+console.log(tree.find(7));
 console.log(tree);
+
+console.log(tree.sort('inorder'))
+console.log(tree.sort('postorder'))
+console.log(tree.sort('preorder'))
 
 
 
