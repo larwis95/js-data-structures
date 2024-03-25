@@ -120,12 +120,37 @@ class BinaryTree {
 
    smallestNode(node) 
    {
-      debugger;
       while (!node.left === null)
       {
          node = node.left;
       }
       return node;
+   }
+
+   maxDepth(node)
+   {
+      return !node ? 0 : 1 + Math.max(this.maxDepth(node.left), this.maxDepth(node.right))
+   }
+
+   minDepth(node)
+   {
+      if (node === null) 
+      {
+         return 0;
+      }
+      if (node.left && node.right)
+      {
+         return 1 + Math.min(this.minDepth(node.left), this.minDepth(node.right));
+      }
+      else if (node.left)
+      {
+         return 1 + Math.min(this.minDepth(node.left));
+      }
+      else
+      {
+         return 1 + Math.min(this.minDepth(node.right));
+      }
+
    }
 
    sort(options) 
@@ -202,10 +227,10 @@ class BinaryTree {
       const stack = [];
       const nodes = [];
       stack.push(current);
-      debugger;
-      while (stack.length || current !== undefined)
+      while (stack.length || current)
       {
          current = stack.pop();
+         console.log("Current", current);
          if (current) 
          {
             nodes.push(current.data); 
@@ -240,6 +265,6 @@ console.log(tree);
 console.table(tree.sort('inorder'))
 console.table(tree.sort('postorder'))
 console.table(tree.sort('preorder'))
-
-
+console.log('Max depth', tree.maxDepth(tree.root));
+console.log('Min Depth', tree.minDepth(tree.root));
 
