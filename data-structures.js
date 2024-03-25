@@ -232,51 +232,14 @@ for (index of test) {
    tree.insert(index);
 }
 
-const printTree = function(root) {
-   //first find depth of tree
-       let depth = 0
-       const findDepth = (node, level) => {
-           depth = Math.max(depth, level);
-           if (node.left) {
-               findDepth(node.left, level + 1)
-           }
-           if (node.right) {
-               findDepth(node.right, level + 1)
-           }
-       }
-       findDepth(root, 1);
-       let width = 1 + ((depth - 1) * 2)
-   //create array of arrays filled with blanks that match height and width
-   // of given tree
-      let output = Array.from({ length: depth }, _ => Array.from({ length: width }).fill(''));
-      let mid = Math.floor(width / 2);
-   //do DFS through tree and change output array based on position in tree
-       const populate = (node, level, hori) => {
-           output[level][hori] = node.data;
-           if (node.left) {
-               populate(node.left, level + 1, hori - 1);
-           }
-           if (node.right) {
-               populate(node.right, level + 1, hori + 1);
-           }
-       }
-       populate(root, 0, mid);
-       return output;
-   };
-
-console.log(printTree(tree.root));
-
-   
-
-
 console.log(tree);
 console.log(tree.find(3));
 console.log(tree.find(7));
 console.log(tree);
 
-console.log(tree.sort('inorder'))
-console.log(tree.sort('postorder'))
-console.log(tree.sort('preorder'))
+console.table(tree.sort('inorder'))
+console.table(tree.sort('postorder'))
+console.table(tree.sort('preorder'))
 
 
 
