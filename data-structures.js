@@ -3,9 +3,9 @@ class Node {
       this.data = data;
       this.right = null;
       this.left = null;
+      this.height = 1;
    }
 }
-
 
 class BinaryTree {
    constructor()
@@ -13,40 +13,91 @@ class BinaryTree {
       this.root = null;
    }
 
-   insert(data) 
+   height(node) {
+      if (!node) return 0;
+      return node.height;
+   }
+
+   balance(node) {
+      if (!node) return 0;
+      return this.height(node.left) - this.height(node.right);
+
+   }
+
+   rotateRight(node) {
+      const left = node.left;
+      const rightOfLeft = left.right;
+
+      left.right = node;
+      node.left = rightOfLeft;
+
+      node.height = Math.max(this.height(node.left), this.height(node.right)) + 1;
+      left.height = Math.max(this.height(left.left), this.height(left.right)) + 1;
+
+      return left;
+   }
+
+   rotateLeft(node) {
+      const right = node.right;
+      const leftOfRight = right.left;
+
+      right.left = node;
+      node.right = leftOfRight;
+
+      node.height = Math.max(this.height(node.left), this.height(node.right)) + 1;
+      right.height = Math.max(this.height(right.left), this.height(right.right)) + 1;
+
+      return right;
+   }
+
+   insert(data) {
+      this.root = this.insertNode(this.root, data);
+   }
+
+   insertNode(node, data) 
    {
-      let newNode = new Node(data);
-
-      if (this.root === null)
+      if (!node) 
       {
-         this.root = newNode;
-         return this;
+         return new Node(data);
       }
 
-      let current = this.root;
-      while(current) 
+      if (data < node.data)
       {
-         if (data === current.data) return undefined;
-         if (data < current.data)
-         {
-            if (current.left === null)
-            {
-               current.left = newNode;
-               return this;
-            }
-            current = current.left;
-         }
-         else 
-         {
-            if (current.right === null)
-            {
-               current.right = newNode;
-               return this;
-            }
-            current = current.right;
-         }
+         node.left = this.insertNode(node.left, data);
+      }
+      else if (data > node.data)
+      {
+         node.right = this.insertNode(node.right, data);
+      }
+      else
+      {
+         return node;
+      }
+      
+      node.height = Math.max(this.height(node.left), this.height(node.right)) + 1;
+      const balance = this.balance(node);
+
+      if (balance > 1 && data < node.left.data)
+      {
+         return this.rotateRight(node);
       }
 
+      if (balance > 1 && data > node.left.data)
+      {
+         return this.rotateRight(node);
+      }
+
+      if (balance < -1 && data > node.right.data)
+      {
+         return this.rotateLeft(node);
+      }
+
+      if (balance < -1 && data < node.right.data)
+      {
+         return this.rotateLeft(node);
+      }
+
+      return node;
    }
 
    find(value)
@@ -83,39 +134,65 @@ class BinaryTree {
    {
       if (current === null) return current;
 
-      if (value === current.data) 
-      {
-         if (current.left === null && current.right === null)
-         {
-            return null;
-         }
-         else if (current.left === null)
-         {
-            return current.right;
-         }
-         else if (current.right === null)
-         {
-            return current.left;
-         }
-         else
-         {
-            let temp = this.smallestNode(current.right);
-            console.log(temp);
-            current.data = temp.data;
-            current.right = this.removeNode(current.right, temp.data);
-            return current;
-         }
-      }
-      else if (value < current.data)
+      if (value < current.data)
       {
          current.left = this.removeNode(current.left, value);
-         return current;
+      }
+      else if (value > current.data)
+      {
+         current.right = this.removeNode(current.right, value);
       }
       else
       {
-         current.right = this.removeNode(current.right, value);
-         return current;
+         if (!current.left && !current.right) 
+         {
+            current = null;
+         }
+         else if (!current.left) 
+         {
+            current = current.right;
+         }
+         else if (!current.right)
+         {
+            current = current.left;
+         }
+         else
+         {
+            const smallNode = this.smallestNode(current.right);
+            current.data = smallNode.data;
+            current.right = this.removeNode(current.right, smallNode.data);
+         }
       }
+
+      if (!current) return null;
+
+      current.height = Math.max(this.height(current.left), this.height(current.right) + 1);
+
+      const balance = this.balance(current);
+
+      if (balance > 1 && this.balance(current.left) >= 0)
+      {
+         return this.rotateRight(current);
+      }
+
+      if (balance > 1 && this.balance(current.left) < 0)
+      {
+         current.left = this.rotateLeft(current.left);
+         return this.rotateRight(current);
+      }
+
+      if (balance < -1 && this.balance(current.right) < 0)
+      {
+         return this.rotateLeft(current);
+      }
+
+      if (balance < -1 && this.balance(current.right) > 0)
+      {
+         current.right = this.rotateRight(current.right);
+         return this.rotateLeft(current);
+      }
+
+      return current;
    }
 
    smallestNode(node) 
@@ -129,7 +206,7 @@ class BinaryTree {
 
    maxDepth(node)
    {
-      return !node ? 0 : 1 + Math.max(this.maxDepth(node.left), this.maxDepth(node.right))
+      return !node ? 0 : 1 + Math.max(this.maxDepth(node.left), this.maxDepth(node.right));
    }
 
    minDepth(node)
@@ -166,6 +243,10 @@ class BinaryTree {
       if (options === 'preorder')
       {
          return this.preorder();
+      }
+      if (options === 'leaf')
+      {
+         return this.leaf();
       }
    }
 
@@ -247,24 +328,43 @@ class BinaryTree {
       }
       return nodes;
    }
+
+   leaf() {
+      let current = this.root
+      const nodes = [];
+
+      if (!current) return;
+
+      const getLeafs = (node) => 
+      {
+         if (!node.left && !node.right)
+         {
+            nodes.push(node.data);
+            console.log(node.data);
+         }
+         if (node.left)
+         {
+            getLeafs(node.left);
+         }
+         if (node.right)
+         {
+            getLeafs(node.right);
+         }
+      }
+      getLeafs(current);
+      return nodes;
+   }
 }
 
 
-let test = [5, 3, 20, 4, 12, 9, 13, 60, 7]
+let test = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 50, 40, 30, 20, 10]
 const tree = new BinaryTree();
 for (index of test) {
    console.log(index);
    tree.insert(index);
 }
 
+console.log(tree.root);
 console.log(tree);
-console.log(tree.find(3));
-console.log(tree.find(7));
-console.log(tree);
-
-console.table(tree.sort('inorder'))
-console.table(tree.sort('postorder'))
-console.table(tree.sort('preorder'))
-console.log('Max depth', tree.maxDepth(tree.root));
-console.log('Min Depth', tree.minDepth(tree.root));
+console.log(tree.sort('leaf'));
 
