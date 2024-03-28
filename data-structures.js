@@ -3,7 +3,7 @@ class Node {
       this.data = data;
       this.right = null;
       this.left = null;
-      this.height = 1;
+      this.height = 0;
    }
 }
 
@@ -11,20 +11,24 @@ class BinaryTree {
    constructor()
    {
       this.root = null;
+      this.length = 0;
    }
 
-   height(node) {
+   height(node) 
+   {
       if (!node) return 0;
       return node.height;
    }
 
-   balance(node) {
+   balance(node) 
+   {
       if (!node) return 0;
       return this.height(node.left) - this.height(node.right);
 
    }
 
-   rotateRight(node) {
+   rotateRight(node) 
+   {
       const left = node.left;
       const rightOfLeft = left.right;
 
@@ -37,7 +41,8 @@ class BinaryTree {
       return left;
    }
 
-   rotateLeft(node) {
+   rotateLeft(node) 
+   {
       const right = node.right;
       const leftOfRight = right.left;
 
@@ -50,8 +55,11 @@ class BinaryTree {
       return right;
    }
 
-   insert(data) {
+   insert(data) 
+   {
       this.root = this.insertNode(this.root, data);
+      if (this.root) this.length = this.length + 1;
+      
    }
 
    insertNode(node, data) 
@@ -128,6 +136,8 @@ class BinaryTree {
    remove(value)
    {
       this.root = this.removeNode(this.root, value);
+      if (this.root) this.length = this.length - 1;
+      
    }
 
    removeNode(current, value)
@@ -303,7 +313,8 @@ class BinaryTree {
       return nodes
    }
 
-   preorder() {
+   preorder() 
+   {
       let current = this.root;
       const stack = [];
       const nodes = [];
@@ -311,7 +322,6 @@ class BinaryTree {
       while (stack.length || current)
       {
          current = stack.pop();
-         console.log("Current", current);
          if (current) 
          {
             nodes.push(current.data); 
@@ -329,7 +339,8 @@ class BinaryTree {
       return nodes;
    }
 
-   leaf() {
+   leaf() 
+   {
       let current = this.root
       const nodes = [];
 
@@ -340,7 +351,6 @@ class BinaryTree {
          if (!node.left && !node.right)
          {
             nodes.push(node.data);
-            console.log(node.data);
          }
          if (node.left)
          {
@@ -354,17 +364,34 @@ class BinaryTree {
       getLeafs(current);
       return nodes;
    }
+
+   isValid() 
+   {
+      const validateNode = (node, min, max) => {
+         if (!node) return true;
+         if (node.data < min || node.data > max) return false;
+            return (
+            validateNode(node.left, min, node.data - 1) &&
+            validateNode(node.right, node.data + 1, max)
+            );
+         };
+
+      return validateNode(this.root, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
+   }
+   
 }
 
 
-let test = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 50, 40, 30, 20, 10]
-const tree = new BinaryTree();
-for (index of test) {
-   console.log(index);
-   tree.insert(index);
+const randomUnique = (range, count) => {
+   let nums = new Set();
+   while (nums.size < count) {
+       nums.add(Math.floor(Math.random() * (range - 1 + 1) + 1));
+   }
+   return [...nums];
 }
 
-console.log(tree.root);
-console.log(tree);
-console.log(tree.sort('leaf'));
+
+
+
+
 
